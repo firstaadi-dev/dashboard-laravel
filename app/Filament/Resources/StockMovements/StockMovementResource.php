@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\StockMovements;
 
+use App\Exports\StockMovementsExport;
 use App\Filament\Resources\StockMovements\Pages\ManageStockMovements;
 use App\Models\Product;
 use App\Models\StockMovement;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -24,6 +26,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StockMovementResource extends Resource
 {
@@ -263,6 +266,13 @@ class StockMovementResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new StockMovementsExport(), 'stock-movements-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

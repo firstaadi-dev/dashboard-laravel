@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Attendances;
 
+use App\Exports\AttendancesExport;
 use App\Filament\Resources\Attendances\Pages\ManageAttendances;
 use App\Models\Attendance;
 use App\Models\Employee;
 use BackedEnum;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -25,6 +27,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceResource extends Resource
 {
@@ -234,6 +237,13 @@ class AttendanceResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new AttendancesExport(), 'attendances-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

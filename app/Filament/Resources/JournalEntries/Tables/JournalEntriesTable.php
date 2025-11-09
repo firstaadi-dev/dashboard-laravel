@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\JournalEntries\Tables;
 
+use App\Exports\JournalEntriesExport;
 use App\Filament\Tables\Columns;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JournalEntriesTable
 {
@@ -143,6 +146,13 @@ class JournalEntriesTable
             ])
             ->recordActions([
                 EditAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new JournalEntriesExport(), 'journal-entries-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

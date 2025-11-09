@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Employees;
 
+use App\Exports\EmployeesExport;
 use App\Filament\Resources\Employees\Pages\ManageEmployees;
 use BackedEnum;
 use UnitEnum;
 use App\Filament\Tables\Columns;
 use App\Models\Employee;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -27,6 +29,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeResource extends Resource
 {
@@ -354,6 +357,13 @@ class EmployeeResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new EmployeesExport(), 'employees-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

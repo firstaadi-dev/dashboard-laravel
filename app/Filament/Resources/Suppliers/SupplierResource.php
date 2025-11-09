@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Suppliers;
 
+use App\Exports\SuppliersExport;
 use App\Filament\Resources\Suppliers\Pages\ManageSuppliers;
 use BackedEnum;
 use UnitEnum;
 use App\Filament\Tables\Columns;
 use App\Models\Supplier;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -26,6 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierResource extends Resource
 {
@@ -301,6 +304,13 @@ class SupplierResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new SuppliersExport(), 'suppliers-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

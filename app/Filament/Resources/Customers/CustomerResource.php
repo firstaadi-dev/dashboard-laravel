@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Customers;
 
+use App\Exports\CustomersExport;
 use App\Filament\Resources\Customers\Pages\ManageCustomers;
 use BackedEnum;
 use UnitEnum;
 use App\Filament\Tables\Columns;
 use App\Models\Customer;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -26,6 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerResource extends Resource
 {
@@ -293,6 +296,13 @@ class CustomerResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->headerActions([
+                Action::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn () => Excel::download(new CustomersExport(), 'customers-' . date('Y-m-d') . '.xlsx'))
+                    ->color('success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
