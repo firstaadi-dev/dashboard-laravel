@@ -15,7 +15,11 @@ class TransactionObserver
      */
     public function created(Transaction $transaction): void
     {
-        //
+        // If transaction is created with status 'completed' (direct payment/lunas),
+        // create journal entry immediately
+        if ($transaction->status === 'completed') {
+            $this->createJournalEntry($transaction);
+        }
     }
 
     /**
