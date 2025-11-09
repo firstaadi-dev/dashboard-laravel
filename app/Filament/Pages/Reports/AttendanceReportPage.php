@@ -8,7 +8,6 @@ use App\Exports\AttendancesExport;
 use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
