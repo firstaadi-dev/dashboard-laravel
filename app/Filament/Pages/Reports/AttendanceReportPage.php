@@ -4,8 +4,11 @@ namespace App\Filament\Pages\Reports;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Exports\AttendancesExport;
+use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -13,17 +16,17 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AttendancesExport;
+use UnitEnum;
 
 class AttendanceReportPage extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-calendar-days';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static string $view = 'filament.pages.reports.attendance-report-page';
+    protected string $view = 'filament.pages.reports.attendance-report-page';
 
-    protected static string|null|\UnitEnum $navigationGroup = 'Reports';
+    protected static UnitEnum|string|null $navigationGroup = 'Reports';
 
     protected static ?string $navigationLabel = 'Attendance Report';
 

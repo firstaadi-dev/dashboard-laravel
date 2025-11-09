@@ -4,8 +4,10 @@ namespace App\Filament\Pages\Reports;
 
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -13,16 +15,17 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Contracts\View\View;
+use UnitEnum;
 
 class SalesReportPage extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string $view = 'filament.pages.reports.sales-report-page';
+    protected string $view = 'filament.pages.reports.sales-report-page';
 
-    protected static ?string $navigationGroup = 'Reports';
+    protected static UnitEnum|string|null $navigationGroup = 'Reports';
 
     protected static ?string $navigationLabel = 'Sales Report';
 

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class SalesChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Sales Over Last 30 Days';
+    protected ?string $heading = 'Sales Over Last 30 Days';
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 'full';
 

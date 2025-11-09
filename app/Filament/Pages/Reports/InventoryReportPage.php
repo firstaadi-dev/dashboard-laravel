@@ -4,22 +4,25 @@ namespace App\Filament\Pages\Reports;
 
 use App\Models\Product;
 use App\Models\StockMovement;
+use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
+use UnitEnum;
 
 class InventoryReportPage extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cube';
 
-    protected static string $view = 'filament.pages.reports.inventory-report-page';
+    protected string $view = 'filament.pages.reports.inventory-report-page';
 
-    protected static ?string $navigationGroup = 'Reports';
+    protected static UnitEnum|string|null $navigationGroup = 'Reports';
 
     protected static ?string $navigationLabel = 'Inventory Report';
 
