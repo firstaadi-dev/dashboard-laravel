@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Attendances;
 use App\Filament\Resources\Attendances\Pages\ManageAttendances;
 use App\Models\Attendance;
 use App\Models\Employee;
-use App\Models\User;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
@@ -33,29 +32,34 @@ class AttendanceResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clock';
 
-    public static function canViewAny(User $user): bool
+    public static function canViewAny(): bool
     {
-        return $user->hasPermissionTo('view_attendances') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('view_attendances') || $user->hasRole('super_admin'));
     }
 
-    public static function canCreate(User $user): bool
+    public static function canCreate(): bool
     {
-        return $user->hasPermissionTo('create_attendances') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('create_attendances') || $user->hasRole('super_admin'));
     }
 
-    public static function canEdit(User $user, $record): bool
+    public static function canEdit($record): bool
     {
-        return $user->hasPermissionTo('edit_attendances') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('edit_attendances') || $user->hasRole('super_admin'));
     }
 
-    public static function canDelete(User $user, $record): bool
+    public static function canDelete($record): bool
     {
-        return $user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin'));
     }
 
-    public static function canDeleteAny(User $user): bool
+    public static function canDeleteAny(): bool
     {
-        return $user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin'));
     }
 
     public static function form(Schema $schema): Schema

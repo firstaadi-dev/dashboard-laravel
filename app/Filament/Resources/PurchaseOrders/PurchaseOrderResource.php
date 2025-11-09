@@ -10,7 +10,6 @@ use App\Filament\Resources\PurchaseOrders\Pages\ListPurchaseOrders;
 use App\Filament\Resources\PurchaseOrders\Schemas\PurchaseOrderForm;
 use App\Filament\Resources\PurchaseOrders\Tables\PurchaseOrdersTable;
 use App\Models\PurchaseOrder;
-use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -33,49 +32,58 @@ class PurchaseOrderResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Purchase Orders';
 
-    public static function canViewAny(User $user): bool
+    public static function canViewAny(): bool
     {
-        return $user->hasPermissionTo('view_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('view_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canCreate(User $user): bool
+    public static function canCreate(): bool
     {
-        return $user->hasPermissionTo('create_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('create_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canEdit(User $user, $record): bool
+    public static function canEdit($record): bool
     {
-        return $user->hasPermissionTo('edit_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('edit_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canDelete(User $user, $record): bool
+    public static function canDelete($record): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canDeleteAny(User $user): bool
+    public static function canDeleteAny(): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canForceDelete(User $user, $record): bool
+    public static function canForceDelete($record): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canForceDeleteAny(User $user): bool
+    public static function canForceDeleteAny(): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canRestore(User $user, $record): bool
+    public static function canRestore($record): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
-    public static function canRestoreAny(User $user): bool
+    public static function canRestoreAny(): bool
     {
-        return $user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_purchase_orders') || $user->hasRole('super_admin'));
     }
 
     public static function form(Schema $schema): Schema

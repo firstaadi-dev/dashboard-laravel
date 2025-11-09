@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Categories;
 
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Models\Category;
-use App\Models\User;
 use BackedEnum;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
@@ -68,29 +67,34 @@ class CategoryResource extends Resource
             ]);
     }
 
-    public static function canViewAny(User $user): bool
+    public static function canViewAny(): bool
     {
-        return $user->hasPermissionTo('view_categories') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('view_categories') || $user->hasRole('super_admin'));
     }
 
-    public static function canCreate(User $user): bool
+    public static function canCreate(): bool
     {
-        return $user->hasPermissionTo('create_categories') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('create_categories') || $user->hasRole('super_admin'));
     }
 
-    public static function canEdit(User $user, $record): bool
+    public static function canEdit($record): bool
     {
-        return $user->hasPermissionTo('edit_categories') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('edit_categories') || $user->hasRole('super_admin'));
     }
 
-    public static function canDelete(User $user, $record): bool
+    public static function canDelete($record): bool
     {
-        return $user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin'));
     }
 
-    public static function canDeleteAny(User $user): bool
+    public static function canDeleteAny(): bool
     {
-        return $user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin');
+        $user = auth()->user();
+        return $user && ($user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin'));
     }
 
     public static function getPages(): array
