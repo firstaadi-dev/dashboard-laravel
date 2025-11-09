@@ -102,6 +102,9 @@ class RolePermissionSeeder extends Seeder
             'view_financial_reports',
             'view_hr_reports',
             'export_reports',
+
+            // Activity Logs
+            'view_activity_logs',
         ];
 
         foreach ($permissions as $permission) {
@@ -151,6 +154,9 @@ class RolePermissionSeeder extends Seeder
 
             // All Reports
             'view_sales_reports', 'view_inventory_reports', 'view_financial_reports', 'view_hr_reports', 'export_reports',
+
+            // Activity Logs
+            'view_activity_logs',
         ]);
 
         // 3. Manager - View and approve, limited edit
