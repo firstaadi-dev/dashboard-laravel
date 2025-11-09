@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Categories;
 
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Models\Category;
+use App\Models\User;
 use BackedEnum;
 use UnitEnum;
 use Filament\Actions\BulkActionGroup;
@@ -65,6 +66,31 @@ class CategoryResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_categories') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_categories') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_categories') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_categories') || $user->hasRole('super_admin');
     }
 
     public static function getPages(): array

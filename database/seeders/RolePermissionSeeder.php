@@ -44,6 +44,12 @@ class RolePermissionSeeder extends Seeder
             'edit_products',
             'delete_products',
 
+            // Category Management
+            'view_categories',
+            'create_categories',
+            'edit_categories',
+            'delete_categories',
+
             // Transaction/Sales
             'view_transactions',
             'create_transactions',
@@ -123,6 +129,9 @@ class RolePermissionSeeder extends Seeder
             // Full Products
             'view_products', 'create_products', 'edit_products', 'delete_products',
 
+            // Full Categories
+            'view_categories', 'create_categories', 'edit_categories', 'delete_categories',
+
             // Full Transactions
             'view_transactions', 'create_transactions', 'edit_transactions', 'delete_transactions', 'approve_transactions',
 
@@ -159,6 +168,9 @@ class RolePermissionSeeder extends Seeder
             // Products - View and Edit
             'view_products', 'edit_products',
 
+            // Categories - View and Edit
+            'view_categories', 'edit_categories',
+
             // Transactions - View and Approve
             'view_transactions', 'approve_transactions',
 
@@ -189,6 +201,9 @@ class RolePermissionSeeder extends Seeder
             // Products - View only
             'view_products',
 
+            // Categories - View only
+            'view_categories',
+
             // Transactions - Full access
             'view_transactions', 'create_transactions', 'edit_transactions',
 
@@ -207,6 +222,9 @@ class RolePermissionSeeder extends Seeder
 
             // Products - View only
             'view_products',
+
+            // Categories - View only
+            'view_categories',
 
             // Transactions - View only
             'view_transactions',
