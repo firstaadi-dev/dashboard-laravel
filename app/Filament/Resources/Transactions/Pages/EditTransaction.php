@@ -48,8 +48,9 @@ class EditTransaction extends EditRecord
         $totalAmount = $transaction->items->sum('subtotal');
 
         // Update transaction total if different from calculated
+        // Use updateQuietly to prevent triggering observer events unnecessarily
         if ($transaction->total_amount != $totalAmount) {
-            $transaction->update(['total_amount' => $totalAmount]);
+            $transaction->updateQuietly(['total_amount' => $totalAmount]);
         }
     }
 }
