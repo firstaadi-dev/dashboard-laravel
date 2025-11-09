@@ -11,8 +11,10 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Filters\DateRangeFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class JournalEntriesTable
 {
@@ -111,8 +113,24 @@ class JournalEntriesTable
                     ])
                     ->native(false),
 
-                DateRangeFilter::make('entry_date')
-                    ->label('Tanggal Entry'),
+                Filter::make('entry_date')
+                    ->form([
+                        DatePicker::make('entry_date_from')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('entry_date_until')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['entry_date_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('entry_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['entry_date_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('entry_date', '<=', $date),
+                            );
+                    }),
 
                 SelectFilter::make('account')
                     ->label('Akun')

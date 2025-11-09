@@ -11,8 +11,10 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Filters\DateRangeFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrdersTable
 {
@@ -110,8 +112,24 @@ class PurchaseOrdersTable
                     ->preload()
                     ->native(false),
 
-                DateRangeFilter::make('order_date')
-                    ->label('Tanggal Order'),
+                Filter::make('order_date')
+                    ->form([
+                        DatePicker::make('order_date_from')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('order_date_until')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['order_date_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('order_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['order_date_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('order_date', '<=', $date),
+                            );
+                    }),
 
                 TrashedFilter::make(),
             ])
