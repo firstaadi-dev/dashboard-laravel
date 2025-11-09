@@ -5,8 +5,10 @@ namespace App\Observers;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\Transaction;
+use App\Notifications\TransactionCompletedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class TransactionObserver
 {
@@ -30,6 +32,10 @@ class TransactionObserver
         // Check if status changed to 'completed'
         if ($transaction->isDirty('status') && $transaction->status === 'completed') {
             $this->createJournalEntry($transaction);
+
+            // Optionally send transaction completed notification to customer
+            // Uncomment the line below to enable email receipts
+            // $this->sendTransactionReceipt($transaction);
         }
     }
 
@@ -186,5 +192,43 @@ class TransactionObserver
         }
 
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Send transaction receipt to customer email (optional).
+     *
+     * Note: This requires adding a 'customer_email' field to transactions table,
+     * or retrieving email from a related Customer model.
+     */
+    protected function sendTransactionReceipt(Transaction $transaction): void
+    {
+        try {
+            // Example 1: If you have customer_email field in transactions table
+            // if (!empty($transaction->customer_email) && filter_var($transaction->customer_email, FILTER_VALIDATE_EMAIL)) {
+            //     Notification::route('mail', $transaction->customer_email)
+            //         ->notify(new TransactionCompletedNotification($transaction));
+            //
+            //     Log::info("Transaction receipt sent to customer", [
+            //         'transaction_id' => $transaction->id,
+            //         'customer_email' => $transaction->customer_email,
+            //     ]);
+            // }
+
+            // Example 2: If you have a Customer relationship with email
+            // if ($transaction->customer && !empty($transaction->customer->email)) {
+            //     $transaction->customer->notify(new TransactionCompletedNotification($transaction));
+            //
+            //     Log::info("Transaction receipt sent to customer", [
+            //         'transaction_id' => $transaction->id,
+            //         'customer_id' => $transaction->customer->id,
+            //     ]);
+            // }
+        } catch (\Exception $e) {
+            Log::error("Failed to send transaction receipt: {$e->getMessage()}", [
+                'transaction_id' => $transaction->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't throw exception to prevent transaction update from failing
+        }
     }
 }

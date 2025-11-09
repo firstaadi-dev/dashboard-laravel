@@ -5,8 +5,10 @@ namespace App\Observers;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\PurchaseOrder;
+use App\Notifications\PurchaseOrderNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class PurchaseOrderObserver
 {
@@ -15,7 +17,9 @@ class PurchaseOrderObserver
      */
     public function created(PurchaseOrder $purchaseOrder): void
     {
-        //
+        // Optionally send PO notification to supplier when PO is created
+        // Uncomment the line below to enable supplier notifications on PO creation
+        // $this->sendPurchaseOrderNotification($purchaseOrder);
     }
 
     /**
@@ -26,6 +30,11 @@ class PurchaseOrderObserver
         // Check if status changed to 'received'
         if ($purchaseOrder->isDirty('status') && $purchaseOrder->status === 'received') {
             $this->createJournalEntry($purchaseOrder);
+        }
+
+        // Optionally send PO notification to supplier when status changes to 'submitted'
+        if ($purchaseOrder->isDirty('status') && $purchaseOrder->status === 'submitted') {
+            $this->sendPurchaseOrderNotification($purchaseOrder);
         }
     }
 
@@ -189,5 +198,50 @@ class PurchaseOrderObserver
         }
 
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Send purchase order notification to supplier.
+     */
+    protected function sendPurchaseOrderNotification(PurchaseOrder $purchaseOrder): void
+    {
+        try {
+            $purchaseOrder->load('supplier');
+            $supplier = $purchaseOrder->supplier;
+
+            if (!$supplier || empty($supplier->email)) {
+                Log::warning("Cannot send PO notification: supplier email not available", [
+                    'purchase_order_id' => $purchaseOrder->id,
+                    'po_number' => $purchaseOrder->po_number,
+                ]);
+                return;
+            }
+
+            // Validate email format
+            if (!filter_var($supplier->email, FILTER_VALIDATE_EMAIL)) {
+                Log::warning("Cannot send PO notification: invalid supplier email", [
+                    'purchase_order_id' => $purchaseOrder->id,
+                    'supplier_email' => $supplier->email,
+                ]);
+                return;
+            }
+
+            // Send notification to supplier email
+            Notification::route('mail', $supplier->email)
+                ->notify(new PurchaseOrderNotification($purchaseOrder));
+
+            Log::info("Purchase order notification sent to supplier", [
+                'purchase_order_id' => $purchaseOrder->id,
+                'po_number' => $purchaseOrder->po_number,
+                'supplier_id' => $supplier->id,
+                'supplier_email' => $supplier->email,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to send purchase order notification: {$e->getMessage()}", [
+                'purchase_order_id' => $purchaseOrder->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't throw exception to prevent PO creation/update from failing
+        }
     }
 }

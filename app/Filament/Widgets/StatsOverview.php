@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 
 class StatsOverview extends BaseWidget
 {
+    protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
         $user = Auth::user();
@@ -31,6 +33,9 @@ class StatsOverview extends BaseWidget
                 ->where('status', 'completed')
                 ->sum('total_amount');
 
+            $pendingTransactions = Transaction::where('status', 'pending')
+                ->count();
+
             $stats[] = Stat::make('Sales Hari Ini', 'Rp ' . number_format($todaySales, 0, ',', '.'))
                 ->description('Total penjualan hari ini')
                 ->descriptionIcon('heroicon-o-currency-dollar')
@@ -40,6 +45,13 @@ class StatsOverview extends BaseWidget
                 ->description('Total penjualan bulan ' . now()->format('F'))
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color('info');
+
+            if ($pendingTransactions > 0) {
+                $stats[] = Stat::make('Transaksi Pending', $pendingTransactions)
+                    ->description('Transaksi menunggu pembayaran')
+                    ->descriptionIcon('heroicon-o-clock')
+                    ->color('warning');
+            }
         }
 
         // Product/Inventory stats (visible to staff and above)
@@ -50,15 +62,14 @@ class StatsOverview extends BaseWidget
 
             $outOfStockProducts = Product::where('stock', '<=', 0)->count();
 
-            $stats[] = Stat::make('Stok Rendah', $lowStockProducts)
-                ->description('Produk dengan stok ≤ 10')
-                ->descriptionIcon('heroicon-o-exclamation-triangle')
-                ->color('warning');
+            $totalLowStockCount = $lowStockProducts + $outOfStockProducts;
 
-            $stats[] = Stat::make('Stok Habis', $outOfStockProducts)
-                ->description('Produk yang harus diorder')
-                ->descriptionIcon('heroicon-o-x-circle')
-                ->color('danger');
+            if ($totalLowStockCount > 0) {
+                $stats[] = Stat::make('Stok Rendah', $totalLowStockCount)
+                    ->description($lowStockProducts . ' rendah, ' . $outOfStockProducts . ' habis')
+                    ->descriptionIcon('heroicon-o-exclamation-triangle')
+                    ->color($outOfStockProducts > 0 ? 'danger' : 'warning');
+            }
         }
 
         // Customer stats (visible to cashier and above)

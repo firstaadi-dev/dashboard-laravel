@@ -5,8 +5,11 @@ namespace App\Observers;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\StockMovement;
+use App\Models\User;
+use App\Notifications\LowStockNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class StockMovementObserver
 {
@@ -19,6 +22,9 @@ class StockMovementObserver
         if ($stockMovement->type === 'adjustment') {
             $this->createJournalEntry($stockMovement);
         }
+
+        // Check for low stock and send notification
+        $this->checkLowStock($stockMovement);
     }
 
     /**
@@ -212,5 +218,51 @@ class StockMovementObserver
         }
 
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Check if product stock is low and send notification.
+     */
+    protected function checkLowStock(StockMovement $stockMovement): void
+    {
+        try {
+            $stockMovement->load('product');
+            $product = $stockMovement->product;
+
+            if (!$product) {
+                return;
+            }
+
+            // Define minimum stock threshold
+            $minimumStock = 10;
+
+            // Only send notification if stock is at or below threshold
+            if ($product->stock <= $minimumStock) {
+                // Get users with permission to view inventory reports
+                $users = User::permission('view_inventory_reports')->get();
+
+                // If no users have that specific permission, notify managers and admins
+                if ($users->isEmpty()) {
+                    $users = User::role(['manager', 'admin', 'super_admin'])->get();
+                }
+
+                if ($users->isNotEmpty()) {
+                    Notification::send($users, new LowStockNotification($product, $minimumStock));
+
+                    Log::info("Low stock notification sent for product: {$product->name}", [
+                        'product_id' => $product->id,
+                        'current_stock' => $product->stock,
+                        'minimum_stock' => $minimumStock,
+                        'recipients_count' => $users->count(),
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send low stock notification: {$e->getMessage()}", [
+                'stock_movement_id' => $stockMovement->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't throw exception to prevent stock movement creation from failing
+        }
     }
 }
