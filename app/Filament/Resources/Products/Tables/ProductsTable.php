@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsTable
@@ -33,8 +34,9 @@ class ProductsTable
                 TextColumn::make('name')
                     ->label('Product Name')
                     ->sortable()
-                    ->searchable()
-                    ->weight('bold'),
+                    ->searchable(query: function (EloquentBuilder $query, string $search): EloquentBuilder {
+                        return $query->orWhere('products.name', 'like', "%{$search}%");
+                    })                    ->weight('bold'),
 
                 TextColumn::make('stock')
                     ->label('Stock')

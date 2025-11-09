@@ -19,11 +19,11 @@ class AttendanceReportPage extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static string $view = 'filament.pages.reports.attendance-report-page';
 
-    protected static ?string $navigationGroup = 'Reports';
+    protected static string|null|\UnitEnum $navigationGroup = 'Reports';
 
     protected static ?string $navigationLabel = 'Attendance Report';
 
