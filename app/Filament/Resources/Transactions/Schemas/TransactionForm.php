@@ -117,13 +117,11 @@ class TransactionForm
 
                                 TextInput::make('unit_price')
                                     ->label('Harga Satuan')
-                                    ->mask(RawJs::make('$money($input)'))
-                                    ->stripCharacters(",")
                                     ->required()
-                                    ->prefix('Rp.')
                                     ->numeric()
-                                    ->minValue(0)
                                     ->step(0.01)
+                                    ->minValue(0)
+                                    ->prefix('Rp')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $quantity = $get('quantity') ?? 1;
@@ -133,12 +131,12 @@ class TransactionForm
 
                                 TextInput::make('subtotal')
                                     ->label('Subtotal')
-                                    ->mask(RawJs::make('$money($input)'))
-                                    ->stripCharacters(",")
                                     ->required()
-                                    ->prefix('Rp.')
                                     ->numeric()
-                                    ->disabled()
+                                    ->step(0.01)
+                                    ->minValue(0)
+                                    ->readOnly()
+                                    ->prefix('Rp')
                                     ->dehydrated()
                                     ->live(),
                             ])
@@ -166,14 +164,14 @@ class TransactionForm
                     ->schema([
                         TextInput::make('total_amount')
                             ->label('Total Pembayaran')
-                            ->mask(RawJs::make('$money($input)'))
-                            ->stripCharacters(",")
                             ->required()
-                            ->prefix('Rp.')
                             ->numeric()
-                            ->disabled()
-                            ->dehydrated()
+                            ->step(0.01)
+                            ->minValue(0)
                             ->default(0)
+                            ->readOnly()
+                            ->prefix('Rp')
+                            ->dehydrated()
                             ->live(),
                     ])
                     ->columnSpanFull(),
