@@ -196,6 +196,7 @@ class JournalEntryForm
                             ->prefix('Rp')
                             ->numeric()
                             ->disabled()
+                            ->dehydrated(false)
                             ->default(0)
                             ->live()
                             ->extraAttributes(['class' => 'font-bold']),
@@ -207,6 +208,7 @@ class JournalEntryForm
                             ->prefix('Rp')
                             ->numeric()
                             ->disabled()
+                            ->dehydrated(false)
                             ->default(0)
                             ->live()
                             ->extraAttributes(['class' => 'font-bold']),
@@ -218,6 +220,7 @@ class JournalEntryForm
                             ->prefix('Rp')
                             ->numeric()
                             ->disabled()
+                            ->dehydrated(false)
                             ->default(0)
                             ->live()
                             ->extraAttributes(fn (callable $get) => [

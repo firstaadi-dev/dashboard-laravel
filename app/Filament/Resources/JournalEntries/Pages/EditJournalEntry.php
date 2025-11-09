@@ -16,4 +16,21 @@ class EditJournalEntry extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Load lines to calculate balance check fields
+        $journalEntry = $this->record;
+        $journalEntry->load('lines');
+
+        $totalDebit = $journalEntry->lines->sum('debit');
+        $totalCredit = $journalEntry->lines->sum('credit');
+
+        // Add calculated balance check fields to form data
+        $data['total_debit'] = $totalDebit;
+        $data['total_credit'] = $totalCredit;
+        $data['balance'] = $totalDebit - $totalCredit;
+
+        return $data;
+    }
 }
