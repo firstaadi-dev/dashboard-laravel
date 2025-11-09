@@ -4,17 +4,19 @@ namespace App\Filament\Resources\Activities;
 
 use App\Filament\Resources\Activities\Pages\ListActivities;
 use App\Filament\Resources\Activities\Tables\ActivitiesTable;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Spatie\Activitylog\Models\Activity;
+use UnitEnum;
 
 class ActivityResource extends Resource
 {
     protected static ?string $model = Activity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Sistema';
+    protected static UnitEnum|string|null $navigationGroup = 'Sistema';
 
     protected static ?int $navigationSort = 99;
 
