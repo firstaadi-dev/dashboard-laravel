@@ -14,7 +14,7 @@ class TopSellingProductsWidget extends BaseWidget
     protected static ?int $sort = 5;
     protected int | string | array $columnSpan = 'full';
 
-    protected function getTableRecordKey($record): string
+    public function getTableRecordKey($record): string
     {
         // Use product_id as the unique key for aggregated records
         return (string) $record->product_id;
