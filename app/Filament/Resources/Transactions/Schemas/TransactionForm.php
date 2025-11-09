@@ -88,7 +88,7 @@ class TransactionForm
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->reactive()
+                                    ->live()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         if ($state) {
                                             $product = \App\Models\Product::find($state);
@@ -98,6 +98,7 @@ class TransactionForm
                                                 $set('subtotal', $product->price * $quantity);
                                             }
                                         }
+                                        self::updateTotals($get, $set);
                                     }),
 
                                 TextInput::make('quantity')
@@ -107,10 +108,11 @@ class TransactionForm
                                     ->default(1)
                                     ->minValue(0.01)
                                     ->step(0.01)
-                                    ->reactive()
+                                    ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $unitPrice = $get('unit_price') ?? 0;
                                         $set('subtotal', $state * $unitPrice);
+                                        self::updateTotals($get, $set);
                                     }),
 
                                 TextInput::make('unit_price')
@@ -122,10 +124,11 @@ class TransactionForm
                                     ->numeric()
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->reactive()
+                                    ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $quantity = $get('quantity') ?? 1;
                                         $set('subtotal', $state * $quantity);
+                                        self::updateTotals($get, $set);
                                     }),
 
                                 TextInput::make('subtotal')
@@ -136,13 +139,21 @@ class TransactionForm
                                     ->prefix('Rp.')
                                     ->numeric()
                                     ->disabled()
-                                    ->dehydrated(),
+                                    ->dehydrated()
+                                    ->live(),
                             ])
                             ->columns(4)
                             ->defaultItems(1)
                             ->addActionLabel('Tambah Item')
                             ->reorderable(false)
                             ->collapsible()
+                            ->live()
+                            ->afterStateUpdated(function (callable $get, callable $set) {
+                                self::updateTotalAmount($get, $set);
+                            })
+                            ->deleteAction(
+                                fn ($action) => $action->after(fn (callable $get, callable $set) => self::updateTotalAmount($get, $set))
+                            )
                             ->itemLabel(fn (array $state): ?string =>
                                 $state['product_id']
                                     ? \App\Models\Product::find($state['product_id'])?->name
@@ -162,9 +173,47 @@ class TransactionForm
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->default(0),
+                            ->default(0)
+                            ->live(),
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function updateTotalAmount(callable $get, callable $set): void
+    {
+        $items = $get('items');
+
+        if (!is_array($items)) {
+            $set('total_amount', 0);
+            return;
+        }
+
+        $total = 0;
+        foreach ($items as $item) {
+            $subtotal = $item['subtotal'] ?? 0;
+            $total += floatval($subtotal);
+        }
+
+        $set('total_amount', $total);
+    }
+
+    protected static function updateTotals(callable $get, callable $set): void
+    {
+        // Get all items from repeater (we're inside an item, so we need to go up)
+        $items = $get('../../items');
+
+        if (!is_array($items)) {
+            $set('../../total_amount', 0);
+            return;
+        }
+
+        $total = 0;
+        foreach ($items as $item) {
+            $subtotal = $item['subtotal'] ?? 0;
+            $total += floatval($subtotal);
+        }
+
+        $set('../../total_amount', $total);
     }
 }
