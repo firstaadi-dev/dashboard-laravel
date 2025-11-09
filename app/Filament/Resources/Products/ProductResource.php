@@ -12,6 +12,7 @@ use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Schemas\ProductInfolist;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
+use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -29,6 +30,51 @@ class ProductResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestore(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestoreAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_products') || $user->hasRole('super_admin');
+    }
 
     public static function form(Schema $schema): Schema
     {

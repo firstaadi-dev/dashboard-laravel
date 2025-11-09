@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Attendances;
 use App\Filament\Resources\Attendances\Pages\ManageAttendances;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\User;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
@@ -31,6 +32,31 @@ class AttendanceResource extends Resource
     protected static ?string $model = Attendance::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clock';
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_attendances') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_attendances') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_attendances') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_attendances') || $user->hasRole('super_admin');
+    }
 
     public static function form(Schema $schema): Schema
     {

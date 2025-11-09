@@ -12,6 +12,7 @@ use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
 use App\Filament\Resources\Transactions\Tables\TransactionsTable;
 use App\Models\Transaction;
+use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -33,6 +34,51 @@ class TransactionResource extends Resource
     protected static ?string $navigationLabel = 'Transaksi';
 
     protected static ?string $pluralModelLabel = 'Transaksi';
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestore(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestoreAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_transactions') || $user->hasRole('super_admin');
+    }
 
     public static function form(Schema $schema): Schema
     {

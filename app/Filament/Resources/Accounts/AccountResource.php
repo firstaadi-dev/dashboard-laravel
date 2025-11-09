@@ -7,6 +7,7 @@ use BackedEnum;
 use UnitEnum;
 use App\Filament\Tables\Columns;
 use App\Models\Account;
+use App\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -36,6 +37,51 @@ class AccountResource extends Resource
     protected static UnitEnum|string|null $navigationGroup = 'Accounting';
 
     protected static ?int $navigationSort = 1;
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canForceDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestore(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
+
+    public static function canRestoreAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_accounts') || $user->hasRole('super_admin');
+    }
 
     public static function form(Schema $schema): Schema
     {

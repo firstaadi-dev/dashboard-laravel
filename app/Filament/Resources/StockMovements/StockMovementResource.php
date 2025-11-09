@@ -5,6 +5,7 @@ namespace App\Filament\Resources\StockMovements;
 use App\Filament\Resources\StockMovements\Pages\ManageStockMovements;
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -30,6 +31,31 @@ class StockMovementResource extends Resource
     protected static ?string $model = StockMovement::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-path';
+
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_stock_movements') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_stock_movements') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_stock_movements') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_stock_movements') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_stock_movements') || $user->hasRole('super_admin');
+    }
 
     public static function form(Schema $schema): Schema
     {

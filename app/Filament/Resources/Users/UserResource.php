@@ -25,6 +25,31 @@ class UserResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
+    public static function canViewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('view_users') || $user->hasRole('super_admin');
+    }
+
+    public static function canCreate(User $user): bool
+    {
+        return $user->hasPermissionTo('create_users') || $user->hasRole('super_admin');
+    }
+
+    public static function canEdit(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('edit_users') || $user->hasRole('super_admin');
+    }
+
+    public static function canDelete(User $user, $record): bool
+    {
+        return $user->hasPermissionTo('delete_users') || $user->hasRole('super_admin');
+    }
+
+    public static function canDeleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo('delete_users') || $user->hasRole('super_admin');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
