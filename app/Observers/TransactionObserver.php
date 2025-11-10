@@ -17,11 +17,9 @@ class TransactionObserver
      */
     public function created(Transaction $transaction): void
     {
-        // If transaction is created with status 'completed' (direct payment/lunas),
-        // create journal entry immediately
-        if ($transaction->status === 'completed') {
-            $this->createJournalEntry($transaction);
-        }
+        // Note: Journal entry creation is handled in CreateTransaction::afterCreate()
+        // to ensure items are saved first before creating journal entries.
+        // This prevents creating journal entries with 0 total amount.
     }
 
     /**
@@ -78,6 +76,19 @@ class TransactionObserver
                 return; // Already processed
             }
 
+            // Ensure items are loaded and calculate total from items
+            $transaction->load('items');
+            $totalAmount = $transaction->items->sum('subtotal');
+
+            // If no items or total is 0, skip journal creation
+            if ($totalAmount <= 0) {
+                Log::warning("Skipping journal entry creation for transaction {$transaction->transaction_number}: total amount is 0 or negative", [
+                    'transaction_id' => $transaction->id,
+                    'total_amount' => $totalAmount,
+                ]);
+                return;
+            }
+
             DB::beginTransaction();
 
             // Determine account based on payment method
@@ -102,19 +113,19 @@ class TransactionObserver
                 'posted_at' => now(),
             ]);
 
-            // Create debit line (Cash/Bank)
+            // Create debit line (Cash/Bank) - use calculated total from items
             $journalEntry->lines()->create([
                 'account_id' => $debitAccount->id,
-                'debit' => $transaction->total_amount,
+                'debit' => $totalAmount,
                 'credit' => 0,
                 'description' => "Sales revenue received via {$transaction->payment_method}",
             ]);
 
-            // Create credit line (Sales Revenue)
+            // Create credit line (Sales Revenue) - use calculated total from items
             $journalEntry->lines()->create([
                 'account_id' => $creditAccount->id,
                 'debit' => 0,
-                'credit' => $transaction->total_amount,
+                'credit' => $totalAmount,
                 'description' => "Sales to {$transaction->customer_name}",
             ]);
 
@@ -123,6 +134,7 @@ class TransactionObserver
             Log::info("Journal entry created for transaction {$transaction->transaction_number}", [
                 'transaction_id' => $transaction->id,
                 'journal_entry_id' => $journalEntry->id,
+                'total_amount' => $totalAmount,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

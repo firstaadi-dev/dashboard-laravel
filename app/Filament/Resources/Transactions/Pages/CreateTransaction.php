@@ -9,34 +9,31 @@ class CreateTransaction extends CreateRecord
 {
     protected static string $resource = TransactionResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        // Calculate total amount from items
-        $totalAmount = 0;
-        if (isset($data['items']) && is_array($data['items'])) {
-            foreach ($data['items'] as $item) {
-                $subtotal = $item['subtotal'] ?? 0;
-                // Convert to float to handle string values from form
-                $totalAmount += floatval($subtotal);
-            }
-        }
-        $data['total_amount'] = $totalAmount;
-
-        return $data;
-    }
-
     protected function afterCreate(): void
     {
-        // Recalculate total amount after items are saved
-        $transaction = $this->record;
-        $transaction->load('items');
-
-        $totalAmount = $transaction->items->sum('subtotal');
-
-        // Update transaction total if different from calculated
-        if ($transaction->total_amount != $totalAmount) {
-            $transaction->update(['total_amount' => $totalAmount]);
+        // Create journal entry if transaction status is 'completed'
+        // This is done here (after items are saved) instead of in the observer's created event
+        // to ensure items are already saved when the journal is created
+        if ($this->record->status === 'completed') {
+            $this->createJournalEntryForTransaction($this->record);
         }
+    }
+
+    /**
+     * Create journal entry for completed transaction.
+     * This method calls the observer's protected method via reflection
+     * or we can duplicate the logic here.
+     */
+    protected function createJournalEntryForTransaction(\App\Models\Transaction $transaction): void
+    {
+        // Get the observer instance and call its createJournalEntry method
+        $observer = app(\App\Observers\TransactionObserver::class);
+
+        // Use reflection to call the protected method
+        $reflection = new \ReflectionClass($observer);
+        $method = $reflection->getMethod('createJournalEntry');
+        $method->setAccessible(true);
+        $method->invoke($observer, $transaction);
     }
 
     protected function getRedirectUrl(): string
